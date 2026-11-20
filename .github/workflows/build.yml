@@ -46,7 +46,7 @@ jobs:
           if ! command -v ldid; then
             echo "building ldid from source"
             git clone --depth 1 https://github.com/xerub/ldid.git /tmp/ldid-src
-            bash /tmp/ldid-src/make.sh
+            cd /tmp/ldid-src && bash make.sh
             sudo install -m755 /tmp/ldid-src/ldid /usr/local/bin/ldid
           fi
           ldid 2>&1 | head -1 || true
