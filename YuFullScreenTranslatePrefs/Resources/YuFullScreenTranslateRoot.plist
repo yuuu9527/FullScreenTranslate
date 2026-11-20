@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>title</key><string>全屏翻译</string>
+    <key>items</key>
+    <array>
+        <dict>
+            <key>cell</key><string>PSGroupCell</string>
+            <key>label</key><string>基本设置</string>
+        </dict>
+        <dict>
+            <key>cell</key><string>PSSwitchCell</string>
+            <key>label</key><string>启用插件</string>
+            <key>key</key><string>enabled</string>
+            <key>defaults</key><string>com.yu.fullscreentranslate</string>
+            <key>default</key><false/>
+        </dict>
+
+        <dict>
+            <key>cell</key><string>PSGroupCell</string>
+            <key>label</key><string>触发方式</string>
+        </dict>
+        <dict>
+            <key>cell</key><string>PSSegmentCell</string>
+            <key>label</key><string>触发手势</string>
+            <key>key</key><string>triggerMode</string>
+            <key>defaults</key><string>com.yu.fullscreentranslate</string>
+            <key>default</key><integer>0</integer>
+            <key>validTitles</key>
+            <array>
+                <string>三指双击</string>
+                <string>右上角横滑</string>
+                <string>悬浮按钮</string>
+            </array>
+            <key>validValues</key>
+            <array>
+                <integer>0</integer>
+                <integer>1</integer>
+                <integer>2</integer>
+            </array>
+        </dict>
+
+        <dict>
+            <key>cell</key><string>PSGroupCell</string>
+            <key>label</key><string>翻译设置</string>
+            <key>footerText</key><string>使用百度翻译 API，请填写您的应用凭证</string>
+        </dict>
+        <dict>
+            <key>cell</key><string>PSEditTextCell</string>
+            <key>label</key><string>App ID</string>
+            <key>key</key><string>appId</string>
+            <key>defaults</key><string>com.yu.fullscreentranslate</string>
+            <key>default</key><string></string>
+            <key>placeholder</key><string>百度翻译 App ID</string>
+            <key>isSecure</key><false/>
+            <key>keyboardType</key><string>ASCIICapable</string>
+        </dict>
+        <dict>
+            <key>cell</key><string>PSSecureEditTextCell</string>
+            <key>label</key><string>Secret Key</string>
+            <key>key</key><string>secretKey</string>
+            <key>defaults</key><string>com.yu.fullscreentranslate</string>
+            <key>default</key><string></string>
+            <key>placeholder</key><string>百度翻译 Secret Key</string>
+            <key>isSecure</key><true/>
+        </dict>
+        <dict>
+            <key>cell</key><string>PSSegmentCell</string>
+            <key>label</key><string>翻译方向</string>
+            <key>key</key><string>translateDirection</string>
+            <key>defaults</key><string>com.yu.fullscreentranslate</string>
+            <key>default</key><integer>0</integer>
+            <key>validTitles</key>
+            <array>
+                <string>自动→中</string>
+                <string>中→英</string>
+                <string>英→中</string>
+                <string>日→中</string>
+                <string>韩→中</string>
+            </array>
+            <key>validValues</key>
+            <array>
+                <integer>0</integer>
+                <integer>1</integer>
+                <integer>2</integer>
+                <integer>3</integer>
+                <integer>4</integer>
+            </array>
+        </dict>
+        <dict>
+            <key>cell</key><string>PSSwitchCell</string>
+            <key>label</key><string>分屏翻译</string>
+            <key>key</key><string>translationSplitModeEnabled</string>
+            <key>defaults</key><string>com.yu.fullscreentranslate</string>
+            <key>default</key><false/>
+        </dict>
+
+        <dict>
+            <key>cell</key><string>PSGroupCell</string>
+            <key>footerText</key><string>by 鱼教兽</string>
+        </dict>
+    </array>
+</dict>
+</plist>
