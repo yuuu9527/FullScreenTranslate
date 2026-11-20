@@ -168,9 +168,9 @@ static NSString * const YuFullScreenTranslateBaiduPictureURL = @"http://api.fany
                     return;
                 }
                 BOOL splitMode = [[YuFullScreenTranslateConfig yu_fullscreentranslate_shared] yu_fullscreentranslate_splitModeEnabled];
-                _overlay = [[YuFullScreenTranslateOverlayWindow alloc] yu_fullscreentranslate_initWithScreenshot:image
-                                                                                                          lines:lines
-                                                                                                       splitMode:splitMode];
+                _overlay = [YuFullScreenTranslateOverlayWindow yu_fullscreentranslate_overlayWithScreenshot:image
+                                                                                                      lines:lines
+                                                                                                   splitMode:splitMode];
                 [_overlay yu_fullscreentranslate_show];
             });
         }];
@@ -197,7 +197,13 @@ static NSString * const YuFullScreenTranslateBaiduPictureURL = @"http://api.fany
     }
     if (!image) {
         UIGraphicsBeginImageContextWithOptions([UIScreen mainScreen].bounds.size, YES, [UIScreen mainScreen].scale);
-        for (UIWindow *window in [UIApplication sharedApplication].windows) {
+        NSMutableArray<UIWindow *> *allWindows = [NSMutableArray array];
+        for (UIScene *scene in [UIApplication sharedApplication].connectedScenes) {
+            if ([scene isKindOfClass:[UIWindowScene class]]) {
+                [allWindows addObjectsFromArray:((UIWindowScene *)scene).windows];
+            }
+        }
+        for (UIWindow *window in allWindows) {
             if (window.windowLevel >= UIWindowLevelAlert || window == self.overlay || window == self.floatingWindow) {
                 continue;
             }
