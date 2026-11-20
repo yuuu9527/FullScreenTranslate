@@ -1,6 +1,7 @@
 #import "YuFullScreenTranslateService.h"
 #import "YuFullScreenTranslateOverlay.h"
 #import "YuFullScreenTranslateConfig.h"
+#import "YuFullScreenTranslatePreferences.h"
 #import "YuFullScreenTranslatePrivate.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <objc/runtime.h>
@@ -29,13 +30,78 @@ static NSString * const YuFullScreenTranslateBaiduPictureURL = @"http://api.fany
 
 #pragma mark - Triggers
 
-- (void)yu_fullscreentranslate_installTriggersOnWindow:(UIWindow *)window {
+- (void)yu_fullscreentranslate_installTriggers {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(yu_fullscreentranslate_handleWindowDidBecomeKey:)
+                                                     name:UIWindowDidBecomeKeyNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(yu_fullscreentranslate_handleConfigChanged)
+                                                     name:YuFullScreenTranslatePreferencesChanged
+                                                   object:nil];
+    });
+    if (![[YuFullScreenTranslateConfig yu_fullscreentranslate_shared] yu_fullscreentranslate_isEnabled]) {
+        [self yu_fullscreentranslate_hideFloatingButton];
+        return;
+    }
+    [self yu_fullscreentranslate_attachToMainWindow];
+}
+
+- (void)yu_fullscreentranslate_handleConfigChanged {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self yu_fullscreentranslate_installTriggers];
+    });
+}
+
+- (void)yu_fullscreentranslate_handleWindowDidBecomeKey:(NSNotification *)note {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([[YuFullScreenTranslateConfig yu_fullscreentranslate_shared] yu_fullscreentranslate_isEnabled]) {
+            [self yu_fullscreentranslate_attachToMainWindow];
+        }
+    });
+}
+
+- (void)yu_fullscreentranslate_attachToMainWindow {
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self yu_fullscreentranslate_attachToMainWindow];
+        });
+        return;
+    }
+    UIWindow *target = nil;
+    for (UIScene *scene in [UIApplication sharedApplication].connectedScenes) {
+        if (![scene isKindOfClass:[UIWindowScene class]]) {
+            continue;
+        }
+        for (UIWindow *candidate in ((UIWindowScene *)scene).windows) {
+            if (candidate.windowLevel == UIWindowLevelNormal &&
+                candidate.screen == [UIScreen mainScreen] &&
+                candidate != self.overlay &&
+                candidate != self.hudWindow &&
+                candidate != self.floatingWindow) {
+                target = candidate;
+                break;
+            }
+        }
+        if (target) {
+            break;
+        }
+    }
+    if (!target) {
+        return;
+    }
+    [self yu_fullscreentranslate_attachTriggersToWindow:target];
+}
+
+- (void)yu_fullscreentranslate_attachTriggersToWindow:(UIWindow *)window {
     if (!window || window == self.floatingWindow || window == self.overlay || window == self.hudWindow) {
         return;
     }
     NSInteger mode = [[YuFullScreenTranslateConfig yu_fullscreentranslate_shared] yu_fullscreentranslate_triggerMode];
 
-    // Three-finger double tap (mode 0) or always-on when floating button mode is off.
+    // Three-finger double tap (mode 0), also available alongside the floating button (mode 2).
     UITapGestureRecognizer *tripleTap = objc_getAssociatedObject(window, "yu_fullscreentranslate_tripleTap");
     if (mode == 0 || mode == 2) {
         if (!tripleTap) {
@@ -64,9 +130,12 @@ static NSString * const YuFullScreenTranslateBaiduPictureURL = @"http://api.fany
         objc_setAssociatedObject(window, "yu_fullscreentranslate_cornerPan", nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
-    // Floating trigger button (mode 2).
+    // Floating trigger button (mode 2): deferred to the next runloop so it is
+    // never created while a window is being activated.
     if (mode == 2) {
-        [self yu_fullscreentranslate_showFloatingButton];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self yu_fullscreentranslate_showFloatingButton];
+        });
     } else {
         [self yu_fullscreentranslate_hideFloatingButton];
     }
@@ -137,7 +206,7 @@ static NSString * const YuFullScreenTranslateBaiduPictureURL = @"http://api.fany
 
 - (void)yu_fullscreentranslate_handleTrigger {
     YuFullScreenTranslateConfig *config = [YuFullScreenTranslateConfig yu_fullscreentranslate_shared];
-    if (![config yu_fullscreentranslate_isEnabled] || _processing) {
+    if (![config yu_fullscreentranslate_isEnabled] || _processing || self.overlay) {
         return;
     }
     if (config.yu_fullscreentranslate_appId.length == 0 || config.yu_fullscreentranslate_secretKey.length == 0) {
