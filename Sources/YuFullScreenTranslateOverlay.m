@@ -8,6 +8,7 @@
 @property (nonatomic, assign) BOOL showsTranslation;
 @property (nonatomic, copy) void (^yu_fullscreentranslate_onToggle)(YuFullScreenTranslateLineView *view);
 - (void)yu_fullscreentranslate_updateText;
+- (void)yu_fullscreentranslate_setLine:(YuFullScreenTranslateLine *)line;
 @end
 
 @interface YuFullScreenTranslateOverlayWindow ()
@@ -23,14 +24,10 @@
 
 @implementation YuFullScreenTranslateOverlayWindow
 
-- (instancetype)yu_fullscreentranslate_initWithScreenshot:(UIImage *)screenshot
-                                                     lines:(NSArray<YuFullScreenTranslateLine *> *)lines
-                                                  splitMode:(BOOL)splitMode {
-    UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    self = (YuFullScreenTranslateOverlayWindow *)window;
-    if (!self) {
-        return nil;
-    }
+- (instancetype)yu_fullscreentranslate_configureWithScreenshot:(UIImage *)screenshot
+                                                           lines:(NSArray<YuFullScreenTranslateLine *> *)lines
+                                                        splitMode:(BOOL)splitMode {
+    self.frame = [UIScreen mainScreen].bounds;
     self.windowLevel = UIWindowLevelStatusBar + 10;
     self.hidden = NO;
     self.backgroundColor = [UIColor clearColor];
@@ -47,6 +44,14 @@
 
     [self yu_fullscreentranslate_buildUI];
     return self;
+}
+
++ (instancetype)yu_fullscreentranslate_overlayWithScreenshot:(UIImage *)screenshot
+                                                       lines:(NSArray<YuFullScreenTranslateLine *> *)lines
+                                                    splitMode:(BOOL)splitMode {
+    YuFullScreenTranslateOverlayWindow *window = [[YuFullScreenTranslateOverlayWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    [window yu_fullscreentranslate_configureWithScreenshot:screenshot lines:lines splitMode:splitMode];
+    return window;
 }
 
 - (void)yu_fullscreentranslate_show {
