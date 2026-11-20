@@ -42,7 +42,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y -qq clang lld dpkg-dev xz-utils git curl libssl-dev make
+          sudo apt-get install -y -qq clang lld dpkg-dev xz-utils git curl libssl-dev libplist-dev make
           if ! command -v ldid; then
             echo "building ldid (Procursus) from source"
             git clone --depth 1 https://github.com/ProcursusTeam/ldid.git /tmp/ldid-src
