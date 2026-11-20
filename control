@@ -1,0 +1,9 @@
+Package: com.yu.fullscreentranslate
+Name: 全屏翻译
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: 全屏翻译
+Maintainer: 鱼教兽
+Author: 鱼教兽
+Section: Yu-Tweaks
+Depends: mobilesubstrate, preferenceloader
