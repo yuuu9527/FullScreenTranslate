@@ -81,6 +81,15 @@ jobs:
           cp -R "$SDK_STAGE/sdks/iPhoneOS16.5.sdk" "$THEOS/sdks/"
           ls -1 "$THEOS/sdks"
 
+      - name: Install Theos Linux Toolchain
+        run: |
+          set -euo pipefail
+          ARCH="$(uname -m)"
+          mkdir -p "$THEOS/toolchain"
+          curl -sL "https://github.com/L1ghtmann/llvm-project/releases/latest/download/iOSToolchain-${ARCH}.tar.xz" -o /tmp/iostc.tar.xz
+          tar -xJf /tmp/iostc.tar.xz -C "$THEOS/toolchain"
+          "$THEOS/toolchain/linux/iphone/bin/clang" --version | head -2
+
       - name: Build Package
         run: |
           sh build.sh "${{ matrix.build_variant }}"
