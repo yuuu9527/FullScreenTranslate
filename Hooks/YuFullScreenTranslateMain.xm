@@ -25,9 +25,17 @@
         return;
     }
     UIWindow *mainWindow = nil;
-    for (UIWindow *candidate in [UIApplication sharedApplication].windows) {
-        if (candidate.windowLevel == UIWindowLevelNormal && candidate.screen == [UIScreen mainScreen]) {
-            mainWindow = candidate;
+    for (UIScene *scene in [UIApplication sharedApplication].connectedScenes) {
+        if (![scene isKindOfClass:[UIWindowScene class]]) {
+            continue;
+        }
+        for (UIWindow *candidate in ((UIWindowScene *)scene).windows) {
+            if (candidate.windowLevel == UIWindowLevelNormal && candidate.screen == [UIScreen mainScreen]) {
+                mainWindow = candidate;
+                break;
+            }
+        }
+        if (mainWindow) {
             break;
         }
     }
