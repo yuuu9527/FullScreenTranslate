@@ -24,8 +24,15 @@
     if (![[YuFullScreenTranslateConfig yu_fullscreentranslate_shared] yu_fullscreentranslate_isEnabled]) {
         return;
     }
+    UIWindow *mainWindow = nil;
+    for (UIWindow *candidate in [UIApplication sharedApplication].windows) {
+        if (candidate.windowLevel == UIWindowLevelNormal && candidate.screen == [UIScreen mainScreen]) {
+            mainWindow = candidate;
+            break;
+        }
+    }
     [[YuFullScreenTranslateService yu_fullscreentranslate_shared]
-        yu_fullscreentranslate_installTriggersOnWindow:[UIApplication sharedApplication].keyWindow];
+        yu_fullscreentranslate_installTriggersOnWindow:mainWindow];
 }
 
 %end
