@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "name": "FullScreenTranslate",
+  "id": "fullscreentranslate",
+  "display_name": "全屏翻译",
+  "class_prefix": "YuFullScreenTranslate",
+  "symbol_prefix": "yu_fullscreentranslate",
+  "package": "com.yu.fullscreentranslate",
+  "bundle": "com.apple.springboard",
+  "sdk_version": "16.5",
+  "minimum_ios": "14.0",
+  "preferences": true,
+  "slider": false,
+  "github_actions": true
+}
