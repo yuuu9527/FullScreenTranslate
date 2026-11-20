@@ -12,13 +12,12 @@ permissions:
 
 env:
   HOMEBREW_NO_AUTO_UPDATE: 1
-  HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
   THEOS: ${{ github.workspace }}/theos-roothide
 
 jobs:
   build:
     name: Build (${{ matrix.build_variant }})
-    runs-on: macos-14
+    runs-on: ubuntu-22.04
     outputs:
       package_version: ${{ steps.bump.outputs.package_version }}
     strategy:
@@ -30,11 +29,6 @@ jobs:
           - build_variant: roothide
 
     steps:
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '15.4'
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -44,12 +38,25 @@ jobs:
           echo "THEOS=$THEOS" >> "$GITHUB_ENV"
           echo "THEOS_IGNORE_PARALLEL_BUILDING_NOTICE=yes" >> "$HOME/.theosrc"
 
+      - name: Install Dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang lld dpkg-dev xz-utils git curl libssl-dev make
+          if ! command -v ldid; then
+            echo "building ldid from source"
+            git clone --depth 1 https://github.com/xerub/ldid.git /tmp/ldid-src
+            make -C /tmp/ldid-src -j2 >/dev/null
+            sudo install -m755 /tmp/ldid-src/ldid /usr/local/bin/ldid
+          fi
+          ldid 2>&1 | head -1 || true
+
       - name: Bump Package Version
         id: bump
         run: |
           VERSION="5.2.0-${{ github.run_number }}"
           echo "Using version: $VERSION"
-          sed -i '' "s/^Version: .*/Version: ${VERSION}/" control
+          sed -i "s/^Version: .*/Version: ${VERSION}/" control
           echo "package_version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout Theos (RootHide)
@@ -73,11 +80,6 @@ jobs:
           git -C "$SDK_STAGE/sdks" sparse-checkout set iPhoneOS16.5.sdk
           cp -R "$SDK_STAGE/sdks/iPhoneOS16.5.sdk" "$THEOS/sdks/"
           ls -1 "$THEOS/sdks"
-
-      - name: Install Theos dependencies
-        run: |
-          brew install ldid dpkg xz
-          echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
 
       - name: Build Package
         run: |
