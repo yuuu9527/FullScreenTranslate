@@ -326,7 +326,10 @@ static NSString * const YuFullScreenTranslateBaiduPictureURL = @"http://api.fany
 
 - (NSString *)yu_fullscreentranslate_md5HexOfData:(NSData *)data {
     unsigned char digest[CC_MD5_DIGEST_LENGTH];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     CC_MD5(data.bytes, (CC_LONG)data.length, digest);
+#pragma clang diagnostic pop
     NSMutableString *hex = [NSMutableString string];
     for (int i = 0; i < CC_MD5_DIGEST_LENGTH; i++) {
         [hex appendFormat:@"%02x", digest[i]];
@@ -362,7 +365,8 @@ static NSString * const YuFullScreenTranslateBaiduPictureURL = @"http://api.fany
     box.layer.cornerRadius = 16;
     [host.view addSubview:box];
 
-    UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+    spinner.color = [UIColor whiteColor];
     spinner.center = CGPointMake(80, 40);
     [spinner startAnimating];
     [box addSubview:spinner];
